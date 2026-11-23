@@ -1,0 +1,25 @@
+# Bibliotecas baixadas pelo npm (dá para baixar de novo com "npm install")
+node_modules/
+
+# Senhas e configurações locais — NUNCA vão para o GitHub
+.env
+.env.*
+!.env.example
+
+# Arquivos gerados no build
+dist/
+build/
+coverage/
+
+# Expo (app mobile)
+.expo/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operacional e editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
