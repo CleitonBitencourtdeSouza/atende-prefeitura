@@ -132,3 +132,26 @@ Aqui eu registro cada tarefa: o que pedi ao Claude, o que ele entregou, como eu 
 - **Teste que nunca falha não prova nada.** Quebrar o código de propósito é o jeito de testar o teste.
 - Conferir só a resposta não basta: é preciso conferir também **o que ficou gravado**.
 - O `beforeEach` roda antes de cada teste, para um teste não atrapalhar o outro.
+
+---
+
+## 25/11/2026 — Fase 5: O salão (telas em React) — feita no automático
+
+**O que pedi ao Claude:** as telas do cidadão e do atendente em React + TypeScript (Vite), usando a API (Issue #5).
+
+**O que o Claude entregou:**
+- **Tela do cidadão:** formulário (título, descrição, categoria e bairro) e a lista de chamados com etiqueta colorida de status e a resposta da prefeitura.
+- **Tela do atendente:** filtros por status (Todos, Aberto, Em andamento, Resolvido) e, em cada chamado, um campo de resposta, a escolha do status e o botão Salvar.
+- O `api.ts`, que é o "garçom" do salão: leva os pedidos para a API e transforma as mensagens de erro dela em avisos na tela.
+- O Vite repassa os pedidos de `/chamados` para a API (porta 3333). Por isso não precisou configurar CORS.
+
+**Como foi conferido:** o Claude usou um navegador automático (o Edge já instalado) para **clicar no fluxo inteiro**: enviar sem título e sem descrição (aparecem os erros), abrir um chamado (a lista atualizou), filtrar como atendente, responder, passar para "Em andamento" e depois "Resolvido", e voltar à tela do cidadão para ver a resposta. Também testou numa tela de celular (sem rolagem para o lado) e conferiu que não houve erros no console. Os prints estão em `docs/prints`.
+
+**O que deu errado no caminho:**
+- O primeiro comando para criar todos os arquivos de uma vez era grande demais, e o terminal não conseguiu ler (erro de aspas). Nada foi executado. O Claude criou os arquivos um por um.
+- O verificador de código (oxlint) avisou que, se o atendente clicasse rápido em dois filtros, a resposta mais lenta poderia chegar por último e mostrar a lista errada. Foi corrigido com uma "trava" (`ativo`) dentro do `useEffect`.
+
+**O que aprendi (para revisar):**
+- **Componente** é uma peça reutilizável da tela (o `ChamadoCard` aparece nas duas telas).
+- **Estado (`useState`)** é a memória da tela: quando muda, o React redesenha só o necessário.
+- **`useEffect`** serve para buscar dados quando a tela abre ou quando o filtro muda.
