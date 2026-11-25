@@ -109,3 +109,26 @@ Aqui eu registro cada tarefa: o que pedi ao Claude, o que ele entregou, como eu 
 - **PATCH** = "muda só um pedaço" do chamado (diferente do POST, que cria um novo).
 - **404** = "não encontrei". **`:id`** na rota é um "espaço em branco" que recebe o número do chamado.
 - **Query string** (`?status=Aberto`) é o jeito de mandar filtros pelo endereço.
+
+---
+
+## 25/11/2026 — Fase 4: O chef que prova (testes automatizados) — feita no automático
+
+**O que pedi ao Claude:** testes automáticos das rotas com Vitest + Supertest (Issue #4).
+
+**O que o Claude entregou:**
+- 14 testes cobrindo: criar chamado, sem título, sem descrição, título só com espaços, JSON quebrado, listar, filtrar, mudar status, status inválido, chamado inexistente (404) e ID inválido.
+- Um **banco separado só para testes** (`atende_prefeitura_teste`). Antes de cada teste ele é esvaziado, então os testes nunca apagam os meus dados de exemplo.
+- `npm test` roda tudo.
+
+**Como foi conferido:** além de ver os 14 testes verdes, o Claude **quebrou o código de propósito** (tirou o `return` da validação do título) para ver se os testes percebiam.
+
+**O que deu errado (e é a melhor parte):**
+- **Com o código quebrado, os 14 testes continuaram passando!** O teste do "título só com espaços" conferia só o código 400, e não se o chamado tinha sido gravado. Sem o `return`, a API respondia 400, mas **gravava um chamado com título vazio**. O teste foi reforçado para conferir também que nada foi gravado. Agora ele pega o defeito.
+- Por causa disso, o tratador de erros ganhou uma proteção: se a resposta já foi enviada, ele não tenta responder de novo.
+- No terminal do Claude (Git Bash), o Vitest dava "failed to find the runner". No PowerShell funcionava. Era um problema do ambiente dele, não do projeto.
+
+**O que aprendi (para revisar):**
+- **Teste que nunca falha não prova nada.** Quebrar o código de propósito é o jeito de testar o teste.
+- Conferir só a resposta não basta: é preciso conferir também **o que ficou gravado**.
+- O `beforeEach` roda antes de cada teste, para um teste não atrapalhar o outro.
