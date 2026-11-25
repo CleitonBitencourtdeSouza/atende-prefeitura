@@ -32,3 +32,34 @@ Aqui eu registro cada tarefa: o que pedi ao Claude, o que ele entregou, como eu 
 - O `.gitignore` impede que senhas e a pasta `node_modules` vão para o GitHub.
 - **Issue** é a "comanda" de uma tarefa: o pedido, o que é "pronto" e como provar. O **quadro** é o mural de comandas (A fazer → Fazendo → Feito).
 - Tarefa grande deve ser dividida em menores para ficar mais fácil de revisar.
+
+---
+
+## 24/11/2026 — Fase 2: A cozinha (API de chamados em memória)
+
+**O que pedi ao Claude:** criar a API em Node.js + TypeScript + Express com duas rotas: `POST /chamados` (abrir chamado) e `GET /chamados` (listar), guardando os dados na memória. Pedi também para me ensinar a revisar o código e para eu mesmo pôr a mão na massa.
+
+**O que o Claude entregou:**
+- A branch `feat/api-chamados` e a pasta `backend/` com o projeto configurado.
+- O `app.ts` (as rotas) e o `server.ts` (liga a API na porta 3333). Ficaram separados para os testes da Fase 4 usarem o `app.ts` sem ligar o servidor.
+- Validação: sem título ou sem descrição, a API responde **400** com uma mensagem. Título só com espaços também é barrado.
+- Categoria e bairro vazios viram "Outros" e "Não informado". A Issue não dizia o que fazer; eu escolhi deixar assim por agora (opção "a").
+
+**Como eu conferi:**
+- Li o `app.ts` e expliquei cada parte com as minhas palavras. Onde eu não sabia (o Express, o `typeof ... &&`, o `push`), pedi explicação comparando com Python.
+- Fiz um experimento: criei um chamado, desliguei e liguei a API, e o chamado **sumiu**. Isso provou por que precisamos do banco na Fase 3.
+- Testei pelo terminal: chamado completo (201), sem título (400), sem descrição (400) e lista (GET).
+- Depois da minha correção, fiz um **teste de regressão**: criar um chamado normal continuou funcionando.
+
+**O que estava errado ou eu mudei:**
+- Rodei `npm run d` na pasta errada e deu `enoent`. Li a linha `path` do erro, vi que o `package.json` fica dentro de `backend/` e corrigi com `cd backend` e `npm run dev`.
+- O comando `curl` que o Claude me passou **não funciona no PowerShell 5.1**: ele cortou o texto nos espaços. Trocamos por `Invoke-RestMethod`.
+- Com o JSON quebrado, a API devolvia uma **página HTML com detalhes internos** do servidor. **Eu mesmo escrevi** um tratador de erros que responde `400 {"erro": "JSON inválido."}`. Na primeira tentativa esqueci de fechar a função com `};` e o TypeScript me avisou.
+- O Claude me passou os **números das linhas errados** na revisão. Também disse que a API estava desligada quando o terminal mostrava "API rodando". No fim, a API tinha mesmo morrido por trás, mas a mensagem antiga continuava na tela. A prova real é fazer um pedido, não confiar no texto do terminal.
+
+**O que aprendi:**
+- **Rota** é o balcão da cozinha: **GET** = "me traz", **POST** = "guarda isso".
+- **201** = criado, **400** = o erro foi de quem pediu, **500** = o erro foi do servidor.
+- **JSON** é o "idioma da comanda": parece uma lista de dicionários do Python.
+- O **`return`** depois do erro é a porta de saída. Sem ele, o chamado seria criado mesmo inválido.
+- Resposta vermelha no terminal nem sempre é falha: o que importa é o resultado bater com o esperado.
