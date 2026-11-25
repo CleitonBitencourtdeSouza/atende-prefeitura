@@ -108,7 +108,12 @@ app.patch("/chamados/:id", async (req, res) => {
 });
 
 // Gerente de crise: trata os erros antes de chegarem ao cliente.
-const tratarErros: ErrorRequestHandler = (erro, _req, res, _next) => {
+const tratarErros: ErrorRequestHandler = (erro, _req, res, next) => {
+  // Se a resposta já foi enviada, deixa o Express encerrar (não dá para responder duas vezes).
+  if (res.headersSent) {
+    next(erro);
+    return;
+  }
   // O pedido chegou com o JSON quebrado: a culpa é de quem enviou (400).
   if (erro.type === "entity.parse.failed") {
     res.status(400).json({ erro: "JSON inválido." });
