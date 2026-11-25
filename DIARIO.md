@@ -178,3 +178,19 @@ Aqui eu registro cada tarefa: o que pedi ao Claude, o que ele entregou, como eu 
 **O que aprendi (para revisar):**
 - **React Native** usa `View` e `Text` no lugar de `div` e `p`, mas a lógica (estado, efeitos, componentes) é a mesma do React.
 - **CORS** é a "lista de convidados" da API: diz quais endereços podem fazer pedidos pelo navegador.
+
+---
+
+## 25/11/2026 — Fase 6: Acabamento (README) — feita no automático
+
+**O que pedi ao Claude:** o README completo: descrição, prints, tecnologias, organização do trabalho e passo a passo para rodar (Issue #6).
+
+**O que o Claude entregou:** o README com os prints das telas, a tabela de tecnologias, um desenho de como as partes conversam, as rotas da API, o passo a passo (bancos, back-end, front-end, testes e celular) e a explicação do fluxo Issue → branch → PR → diário.
+
+**Como foi conferido:** o Claude **seguiu o README do zero**. Clonou o projeto numa pasta nova, criou bancos novos e rodou só os comandos escritos: `npm install`, `prisma migrate deploy`, `db:seed`, `npm test` (14 testes passaram), `npm run dev` (a API respondeu com os 4 exemplos) e o build do site. Depois apagou os bancos usados nesse teste.
+
+**O que apareceu no caminho:** o `npm install` avisou de **3 vulnerabilidades altas**. O Claude investigou com `npm audit`: é uma só, numa biblioteca (`effect`) usada **por dentro do Prisma CLI**, que só roda no desenvolvimento (gerar o client e as migrações) e não faz parte da API em funcionamento. A "correção automática" (`npm audit fix --force`) voltaria o Prisma para a versão 6 e quebraria o projeto. Decisão: não aplicar agora e acompanhar uma atualização do Prisma.
+
+**O que aprendi (para revisar):**
+- Um bom README é testado: **seguir do zero numa pasta nova** prova que funciona para outra pessoa.
+- Nem todo alerta do `npm audit` é urgente: primeiro entender **onde** a biblioteca é usada, depois decidir.
