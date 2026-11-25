@@ -1,3 +1,4 @@
+import cors from "cors";
 import express, { type ErrorRequestHandler } from "express";
 import { prisma } from "./db.js";
 
@@ -6,6 +7,9 @@ export const STATUS = ["Aberto", "Em andamento", "Resolvido"] as const;
 export type Status = (typeof STATUS)[number];
 
 export const app = express();
+
+// Libera pedidos de outros endereços (o app de celular e a versão web do Expo).
+app.use(cors());
 
 // Ensina a API a ler o corpo dos pedidos em JSON.
 app.use(express.json());
