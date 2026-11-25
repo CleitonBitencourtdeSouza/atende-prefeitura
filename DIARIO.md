@@ -155,3 +155,26 @@ Aqui eu registro cada tarefa: o que pedi ao Claude, o que ele entregou, como eu 
 - **Componente** é uma peça reutilizável da tela (o `ChamadoCard` aparece nas duas telas).
 - **Estado (`useState`)** é a memória da tela: quando muda, o React redesenha só o necessário.
 - **`useEffect`** serve para buscar dados quando a tela abre ou quando o filtro muda.
+
+---
+
+## 25/11/2026 — Fase 7 (bônus): App de celular com Expo — feita no automático
+
+**O que pedi ao Claude:** um app de celular com React Native + Expo que lista e abre chamados usando a mesma API (Issue #7).
+
+**O que o Claude entregou:**
+- O app em `mobile/`: formulário (título, descrição e bairro) no topo e a lista de chamados embaixo, com as mesmas cores de status do site. Dá para puxar a lista para baixo para atualizar.
+- O endereço da API vem do `.env` (`EXPO_PUBLIC_API_URL`). No celular, "localhost" é o **próprio celular**, então é preciso usar o IP do computador na rede Wi-Fi.
+- A API ganhou o **CORS**, que libera pedidos vindos de outros endereços (o app e a versão web do Expo).
+
+**Como foi conferido:** o Claude rodou o app na **versão web do Expo**, em tamanho de celular, com um navegador automático. O app listou os chamados da API, mostrou o erro sem título e abriu um chamado novo. Depois, o **site** abriu e o mesmo chamado estava lá. Os 14 testes do backend continuaram passando depois do CORS.
+
+**O que ainda falta (honestidade):** **não foi testado num celular de verdade com o Expo Go.** A Issue pede esse print, e eu preciso fazer isso.
+
+**O que deu errado no caminho:**
+- O modelo do Expo trouxe arquivos extras: instruções para IA (`AGENTS.md`), uma configuração que ativava um plugin no Claude e a licença do próprio modelo. Foram removidos.
+- O script de teste do Claude procurava o título exato, mas no app o título aparece junto com o número ("#5 Calçada quebrada"). O erro era do teste, não do app. Ele corrigiu o script e rodou de novo.
+
+**O que aprendi (para revisar):**
+- **React Native** usa `View` e `Text` no lugar de `div` e `p`, mas a lógica (estado, efeitos, componentes) é a mesma do React.
+- **CORS** é a "lista de convidados" da API: diz quais endereços podem fazer pedidos pelo navegador.
