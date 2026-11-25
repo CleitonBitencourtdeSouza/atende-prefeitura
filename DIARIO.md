@@ -63,3 +63,28 @@ Aqui eu registro cada tarefa: o que pedi ao Claude, o que ele entregou, como eu 
 - **JSON** é o "idioma da comanda": parece uma lista de dicionários do Python.
 - O **`return`** depois do erro é a porta de saída. Sem ele, o chamado seria criado mesmo inválido.
 - Resposta vermelha no terminal nem sempre é falha: o que importa é o resultado bater com o esperado.
+
+---
+
+## 25/11/2026 — Fase 3: A despensa (PostgreSQL + Prisma) — feita no automático
+
+**O que pedi ao Claude:** terminar o projeto no automático, fase por fase, mantendo Issues, branches, testes, PRs e diário. O pedido da Fase 3 eu mesmo escrevi antes, com as 4 perguntas: trocar a memória pelo PostgreSQL usando o Prisma, porque os chamados sumiam ao reiniciar; pronto quando o chamado continuar na lista depois de reiniciar; a senha fica no `.env` e nunca vai para o GitHub.
+
+**O que o Claude entregou:**
+- Um PostgreSQL só para o projeto (porta 5433, pasta `atende-pgdata` fora do repositório), porque eu não sabia a senha do usuário `postgres` da porta 5432. Usuário `atende` com senha nova guardada no `backend/.env`.
+- O modelo `Chamado` no `schema.prisma` e a migração que criou a tabela `chamados`.
+- As rotas trocaram o "caderninho" pelo `prisma.chamado.findMany` e `prisma.chamado.create`. A validação continua igual.
+- Um seed com 4 chamados de exemplo, que não duplica se rodar duas vezes.
+
+**Como foi conferido:** o Claude repetiu o meu experimento da Fase 2: criou um chamado, desligou e ligou a API, e o chamado **continuou** na lista. Depois rodou um `SELECT` direto no banco pelo `psql`. A saída está no PR. Eu ainda vou revisar o código com calma.
+
+**O que deu errado no caminho (registrado pelo Claude):**
+- O primeiro comando para ligar o banco ficou travado esperando, e a senha gerada se perdeu. O Claude liberou o acesso local por alguns segundos, trocou a senha e fechou de novo.
+- Ele mandou três comandos SQL juntos e o PostgreSQL recusou tudo (`CREATE DATABASE` não roda junto com outros comandos). Repetiu um por um.
+- O `prisma init` baixou pastas de "instruções para IA" que o projeto não precisa. O Claude olhou o que eram e removeu.
+- No Prisma 7, a migração não gera mais o client sozinha: precisou rodar `prisma generate`. Por isso coloquei o `postinstall` no `package.json`.
+
+**O que aprendi (para revisar):**
+- **Migração** é o "histórico de obras" da despensa: cada mudança na tabela vira um arquivo SQL.
+- **Seed** são os dados de exemplo para o sistema não começar vazio.
+- **ORM (Prisma)** traduz o código TypeScript em SQL. O `findMany` vira um `SELECT`.
