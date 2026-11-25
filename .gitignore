@@ -23,3 +23,6 @@ npm-debug.log*
 Thumbs.db
 .vscode/*
 !.vscode/extensions.json
+
+# Material pessoal de estudo (fica só no meu computador)
+ENTREVISTA.md
