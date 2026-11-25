@@ -18,6 +18,7 @@ model Chamado {
   categoria    String   @default("Outros")
   bairro       String   @default("Não informado")
   status       String   @default("Aberto") // Aberto | Em andamento | Resolvido
+  resposta     String?  // Resposta do atendente (vazia até alguém responder)
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 

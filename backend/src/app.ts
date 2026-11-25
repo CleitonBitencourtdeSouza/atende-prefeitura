@@ -15,9 +15,25 @@ function textoPreenchido(valor: unknown): valor is string {
   return typeof valor === "string" && valor.trim() !== "";
 }
 
-// GET /chamados: devolve a lista de chamados, do mais novo para o mais antigo.
-app.get("/chamados", async (_req, res) => {
-  const chamados = await prisma.chamado.findMany({ orderBy: { id: "desc" } });
+// Confere se o texto é um dos status permitidos.
+function statusValido(valor: unknown): valor is Status {
+  return STATUS.includes(valor as Status);
+}
+
+// GET /chamados: devolve a lista, do mais novo para o mais antigo.
+// Com ?status=Aberto, devolve só os chamados daquele status (filtro do atendente).
+app.get("/chamados", async (req, res) => {
+  const { status } = req.query;
+
+  if (status !== undefined && !statusValido(status)) {
+    res.status(400).json({ erro: `Status inválido. Use: ${STATUS.join(", ")}.` });
+    return;
+  }
+
+  const chamados = await prisma.chamado.findMany({
+    where: status ? { status } : undefined,
+    orderBy: { id: "desc" },
+  });
   res.json(chamados);
 });
 
@@ -47,6 +63,48 @@ app.post("/chamados", async (req, res) => {
 
   // 201 = "Criado! Deu certo."
   res.status(201).json(chamado);
+});
+
+// PATCH /chamados/:id: o atendente responde e/ou muda o status de um chamado.
+app.patch("/chamados/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) {
+    res.status(400).json({ erro: "ID inválido." });
+    return;
+  }
+
+  const { status, resposta } = req.body ?? {};
+
+  // Precisa mandar pelo menos uma coisa para mudar.
+  if (status === undefined && resposta === undefined) {
+    res.status(400).json({ erro: "Envie o status e/ou a resposta." });
+    return;
+  }
+  if (status !== undefined && !statusValido(status)) {
+    res.status(400).json({ erro: `Status inválido. Use: ${STATUS.join(", ")}.` });
+    return;
+  }
+  if (resposta !== undefined && !textoPreenchido(resposta)) {
+    res.status(400).json({ erro: "A resposta não pode ficar vazia." });
+    return;
+  }
+
+  // O chamado existe? Se não, 404 ("não encontrei").
+  const existe = await prisma.chamado.findUnique({ where: { id } });
+  if (!existe) {
+    res.status(404).json({ erro: "Chamado não encontrado." });
+    return;
+  }
+
+  const chamado = await prisma.chamado.update({
+    where: { id },
+    data: {
+      status,
+      resposta: resposta === undefined ? undefined : resposta.trim(),
+    },
+  });
+
+  res.json(chamado);
 });
 
 // Gerente de crise: trata os erros antes de chegarem ao cliente.

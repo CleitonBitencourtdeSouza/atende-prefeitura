@@ -88,3 +88,24 @@ Aqui eu registro cada tarefa: o que pedi ao Claude, o que ele entregou, como eu 
 - **Migração** é o "histórico de obras" da despensa: cada mudança na tabela vira um arquivo SQL.
 - **Seed** são os dados de exemplo para o sistema não começar vazio.
 - **ORM (Prisma)** traduz o código TypeScript em SQL. O `findMany` vira um `SELECT`.
+
+---
+
+## 25/11/2026 — Fase 3 (parte 2): Rotas do atendente — feita no automático
+
+**O que pedi ao Claude:** as ferramentas do atendente (Issue #3): responder, mudar o status e filtrar a lista.
+
+**O que o Claude entregou:**
+- Um campo novo `resposta` na tabela (segunda migração).
+- `PATCH /chamados/:id`: muda o status e/ou grava a resposta.
+- `GET /chamados?status=...`: filtra a lista.
+- Erros tratados: status fora da lista (400), chamado que não existe (404), ID que não é número (400), pedido sem nada para mudar (400) e resposta vazia (400).
+
+**Como foi conferido:** 8 chamadas pelo terminal (sucesso e erros) e um `SELECT` no banco mostrando a resposta gravada. A saída está no PR.
+
+**Decisão para eu avaliar:** a API aceita qualquer status da lista, em qualquer ordem. O atendente pode voltar de "Resolvido" para "Aberto", por exemplo, se o problema voltar. A Issue não exigia uma ordem obrigatória.
+
+**O que aprendi (para revisar):**
+- **PATCH** = "muda só um pedaço" do chamado (diferente do POST, que cria um novo).
+- **404** = "não encontrei". **`:id`** na rota é um "espaço em branco" que recebe o número do chamado.
+- **Query string** (`?status=Aberto`) é o jeito de mandar filtros pelo endereço.
